@@ -4,10 +4,14 @@ import fetch from "node-fetch";
 
 config();
 
+const getToken = async () => await fs.readFile(".env", "utf8");
+
 const fetchArticles = async () => {
+  const token = await getToken();
+
   const res = await fetch("https://api.newsfilter.io/actions", {
     headers: {
-      authorization: `Bearer ${process.env.NEWSFILTER_TOKEN}`,
+      authorization: token,
       "content-type": "application/json;charset=UTF-8",
     },
     referrerPolicy: "no-referrer",
@@ -73,5 +77,14 @@ const readme = `# Bloomberg Market Wrap Articles
 ${table}
 `;
 
+console.log(`Found ${articles.articles.length} articles`);
+console.log(
+  `Latest Article (${articles.articles[0].publishedAt.split("T")[0]})): ${
+    articles.articles[0].title
+  } `
+);
+
 await fs.writeFile(`data/${lastUpdate}.json`, JSON.stringify(sources));
 await fs.writeFile("README.md", readme);
+
+console.log("Wrote README.md");

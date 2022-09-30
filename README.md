@@ -1,19 +1,22 @@
 # Bloomberg Market Wrap Articles
 
-> Last updated: 2022-09-26
+> Last updated: 2022-09-30
 
 ## Usage
 
 1. Clone this repo
-2. Run `npm install`
+2. Run `pnpm install`
 3. Rename `.env.example` to `.env`
 4. Get a [Newsfilter API token](https://developers.newsfilter.io/docs/news-query-api-authentication.html) and add it to `.env`
-5. Run `npm start`
+5. Run `pnpm run start`
 
 ## Articles
 
 Article | Date
 --- | ---
+[Asian Stocks Set to Fall as Global Selloff Deepens: Markets Wrap](https://www.bloomberg.com//news/articles/2022-09-29/asian-stocks-set-to-fall-as-global-selloff-deepens-markets-wrap) | 2022-09-29
+[Asian Stocks to Rally as BOE Lifts Risk Sentiment: Markets Wrap](https://www.bloomberg.com//news/articles/2022-09-28/asian-stocks-to-rally-as-boe-lifts-risk-sentiment-markets-wrap) | 2022-09-28
+[Asia Faces Continued Pressure on Riskier Assets: Markets Wrap](https://www.bloomberg.com//news/articles/2022-09-26/asia-faces-continued-pressure-on-riskier-assets-markets-wrap) | 2022-09-26
 [Asian Stocks Poised to Drop in Rocky Start to Week: Markets Wrap](https://www.bloomberg.com//news/articles/2022-09-25/asian-stocks-poised-to-drop-in-rocky-start-to-week-markets-wrap) | 2022-09-25
 [Asian Stocks Poised to Decline Amid Surging Yields: Markets Wrap](https://www.bloomberg.com//news/articles/2022-09-22/asian-stocks-poised-to-decline-amid-surging-yields-markets-wrap) | 2022-09-22
 [Asian Stocks to Fall on Fed Vow to Crush Inflation: Markets Wrap](https://www.bloomberg.com//news/articles/2022-09-21/asian-stocks-to-fall-on-fed-vow-to-crush-inflation-markets-wrap) | 2022-09-21
@@ -61,6 +64,3 @@ Article | Date
 [Recession Angst Subdues Stocks, Deepens Oil Losses: Markets Wrap](https://www.bloomberg.com//news/articles/2022-07-12/recession-angst-looks-set-to-subdue-asian-bourses-markets-wrap) | 2022-07-13
 [Dollar Holds Surge Amid Caution Before Asia Open: Markets Wrap](https://www.bloomberg.com//news/articles/2022-07-11/dollar-surge-shows-caution-reigns-before-asia-open-markets-wrap) | 2022-07-11
 [US Futures, Oil Dip; Stocks Set for Cautious Open: Markets Wrap](https://www.bloomberg.com//news/articles/2022-07-10/asia-set-for-cautious-open-as-china-tackles-covid-markets-wrap) | 2022-07-10
-[Stocks Rise in Asia as Some Fears Over Growth Ease: Markets Wrap](https://www.bloomberg.com//news/articles/2022-07-07/stocks-set-to-rise-as-recession-obsession-cools-markets-wrap) | 2022-07-08
-[US Futures Rise After Tech-Led Asian Stock Gains: Markets Wrap](https://www.bloomberg.com//news/articles/2022-07-06/bonds-drop-post-fed-stocks-set-for-steady-start-markets-wrap) | 2022-07-07
-[Recession Fears Sink Oil and May Sap Asian Stocks: Markets Wrap](https://www.bloomberg.com//news/articles/2022-07-05/recession-fears-sink-oil-and-may-sap-asian-stocks-markets-wrap) | 2022-07-05
