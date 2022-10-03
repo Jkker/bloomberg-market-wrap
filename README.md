@@ -1,6 +1,6 @@
 # Bloomberg Market Wrap Articles
 
-> Last updated: 2022-09-30
+> Last updated: 2022-10-03
 
 ## Usage
 
@@ -14,6 +14,7 @@
 
 Article | Date
 --- | ---
+[Asia Stocks Set for Cautious Open After Sept. Rout: Markets Wrap](https://www.bloomberg.com//news/articles/2022-10-02/asia-stocks-set-for-cautious-open-after-sept-rout-markets-wrap) | 2022-10-02
 [Asian Stocks Set to Fall as Global Selloff Deepens: Markets Wrap](https://www.bloomberg.com//news/articles/2022-09-29/asian-stocks-set-to-fall-as-global-selloff-deepens-markets-wrap) | 2022-09-29
 [Asian Stocks to Rally as BOE Lifts Risk Sentiment: Markets Wrap](https://www.bloomberg.com//news/articles/2022-09-28/asian-stocks-to-rally-as-boe-lifts-risk-sentiment-markets-wrap) | 2022-09-28
 [Asia Faces Continued Pressure on Riskier Assets: Markets Wrap](https://www.bloomberg.com//news/articles/2022-09-26/asia-faces-continued-pressure-on-riskier-assets-markets-wrap) | 2022-09-26
@@ -63,4 +64,3 @@ Article | Date
 [US Futures Fall Amid Hawkish Post-CPI Fed Comments: Markets Wrap](https://www.bloomberg.com//news/articles/2022-07-13/scorching-us-cpi-sows-caution-for-asia-stock-open-markets-wrap) | 2022-07-13
 [Recession Angst Subdues Stocks, Deepens Oil Losses: Markets Wrap](https://www.bloomberg.com//news/articles/2022-07-12/recession-angst-looks-set-to-subdue-asian-bourses-markets-wrap) | 2022-07-13
 [Dollar Holds Surge Amid Caution Before Asia Open: Markets Wrap](https://www.bloomberg.com//news/articles/2022-07-11/dollar-surge-shows-caution-reigns-before-asia-open-markets-wrap) | 2022-07-11
-[US Futures, Oil Dip; Stocks Set for Cautious Open: Markets Wrap](https://www.bloomberg.com//news/articles/2022-07-10/asia-set-for-cautious-open-as-china-tackles-covid-markets-wrap) | 2022-07-10
