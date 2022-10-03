@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 
 config();
 
-const getToken = async () => await fs.readFile(".env", "utf8");
+const getToken = async () => await fs.readFile(".env", "utf8").then((data) => data.trim());
 
 const fetchArticles = async () => {
   const token = await getToken();
