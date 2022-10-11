@@ -11,7 +11,13 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.2",
-    "node-fetch": "^3.2.10"
+    "node-fetch": "^3.2.10",
+    "playwright": "^1.26.1",
+    "playwright-extra": "^4.3.5",
+    "puppeteer": "^18.0.5",
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-stealth": "^2.11.1",
+    "yahoo-stock-prices": "^1.1.0"
   },
   "type": "module"
 }

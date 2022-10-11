@@ -4,65 +4,126 @@ import fetch from "node-fetch";
 
 config();
 
-const getToken = async () => await fs.readFile(".env", "utf8").then((data) => data.trim());
+const getStockData = async () => {
+  const START_DATE = "2022-07-01";
+  const FRED_KEY = "96dc2e6b866ebf08660f467211968758";
+  const indices = ["DJIA", "SP500", "NASDAQCOM"];
 
-const fetchArticles = async () => {
-  const token = await getToken();
+  const fetchStockData = (idx) =>
+    fetch(
+      `https://api.stlouisfed.org/fred/series/observations?series_id=${idx}&api_key=${FRED_KEY}&file_type=json`
+    ).then((res) => res.json());
 
-  const res = await fetch("https://api.newsfilter.io/actions", {
-    headers: {
-      authorization: token,
-      "content-type": "application/json;charset=UTF-8",
-    },
-    referrerPolicy: "no-referrer",
-    body: JSON.stringify({
-      type: "filterArticles",
-      queryString: 'title:"Markets Wrap"',
-      from: 0,
-      size: 100,
+  const data = await Promise.all(indices.map(fetchStockData));
+
+  const obj = data.reduce(
+    (acc, { observations }, idx) => ({
+      ...acc,
+      [indices[idx]]: observations
+        .map(({ date, value }) => ({ date, value }))
+        .filter(({ date }) => date >= START_DATE),
     }),
-    method: "POST",
-  });
+    {}
+  );
 
-  const data = await res.json();
+  const stockDates = obj.SP500.map(({ date }) => date);
 
-  return data;
+  const stockData = Object.fromEntries(
+    stockDates.map((date) => [
+      date,
+      {
+        DJIA: obj.DJIA.find((d) => d.date === date).value,
+        SP500: obj.SP500.find((d) => d.date === date).value,
+        NASDAQCOM: obj.NASDAQCOM.find((d) => d.date === date).value,
+      },
+    ])
+  );
+  return stockData;
 };
 
-const getSrcUrl = (id = "a1ff13551dee02128ee0b9330e17f811") =>
-  fetch(`https://static.newsfilter.io/${id}.json`)
-    .then((res) => res.json())
-    .then((data) => data.url)
-    .catch((e) => e + "");
+const getMarketWrapArticles = async () => {
+  const getToken = async () =>
+    await fs.readFile(".env", "utf8").then((data) => data.trim());
 
-const toMarkdownTable = (data) => {
-  const headers = ["Article", "Date"];
+  const fetchArticles = async () => {
+    const token = await getToken();
+
+    const res = await fetch("https://api.newsfilter.io/actions", {
+      headers: {
+        authorization: token,
+        "content-type": "application/json;charset=UTF-8",
+      },
+      referrerPolicy: "no-referrer",
+      body: JSON.stringify({
+        type: "filterArticles",
+        queryString: 'title:"Markets Wrap" OR description:"Markets Wrap"',
+        from: 0,
+        size: 100,
+      }),
+      method: "POST",
+    });
+
+    const data = await res.json();
+
+    return data;
+  };
+
+  const getSrcUrl = (id = "a1ff13551dee02128ee0b9330e17f811") =>
+    fetch(`https://static.newsfilter.io/${id}.json`)
+      .then((res) => res.json())
+      .then((data) => data.url.replace("bloomberg.com//", "bloomberg.com/"))
+      .catch((e) => e + "");
+
+  const getDateFromUrl = (url) => url.match(/(\d{4}-\d{2}-\d{2})/)[1];
+
+  const res = await fetchArticles();
+
+  const articles = await Promise.all(
+    res.articles.map(async (a) => ({
+      ...a,
+      source: await getSrcUrl(a.id),
+    }))
+  );
+  const articlesWithDates = articles.map((a) => ({
+    ...a,
+    date: getDateFromUrl(a.source),
+  }));
+
+  return articlesWithDates;
+};
+
+const toMarkdownTableAll = (data) => {
+  const headers = ["Date", "Article", "Dow", "S&P500", "NASDAQ"];
   const separator = headers.map(() => "---");
 
-  const rows = data.map(({ title, source, publishedAt }) => [
-    `[${title}](${source})`,
-    publishedAt.split("T")[0],
-  ]);
+  const rows = data.map(
+    ({ title, source, publishedAt, DJIA, SP500, NASDAQCOM }) => [
+      source.match(/(\d{4}-\d{2}-\d{2})/)[1],
+      `[${title}](${source})`,
+      DJIA,
+      SP500,
+      NASDAQCOM,
+    ]
+  );
 
   return [headers, separator, ...rows].map((row) => row.join(" | ")).join("\n");
 };
 
-const articles = await fetchArticles();
+const stocks = await getStockData();
+const articles = await getMarketWrapArticles();
 
-const sources = await Promise.all(
-  articles.articles.map(async (a) => ({
-    ...a,
-    source: await getSrcUrl(a.id),
-  }))
-);
+const articlesWithStocks = articles.map((src) => ({
+  ...src,
+  ...stocks[src.date],
+}));
 
-const table = toMarkdownTable(sources);
+const table = toMarkdownTableAll(articlesWithStocks);
 
-const lastUpdate = new Date().toISOString().split("T")[0];
+const latestArticle = articles[0];
 
-const readme = `# Bloomberg Market Wrap Articles
+const readmeContent = `# Bloomberg Market Wrap Articles
 
-> Last updated: ${lastUpdate}
+> Last updated: ${latestArticle.date}
 
 ## Usage
 
@@ -77,14 +138,13 @@ const readme = `# Bloomberg Market Wrap Articles
 ${table}
 `;
 
-console.log(`Found ${articles.articles.length} articles`);
-console.log(
-  `Latest Article (${articles.articles[0].publishedAt.split("T")[0]})): ${
-    articles.articles[0].title
-  } `
+console.log(`Found ${articles.length} articles`);
+console.log(`Latest Article (${latestArticle.date}): ${latestArticle.title} `);
+
+await fs.writeFile(
+  `data/${latestArticle.date}.json`,
+  JSON.stringify(articlesWithStocks)
 );
+await fs.writeFile("README.md", readmeContent);
 
-await fs.writeFile(`data/${lastUpdate}.json`, JSON.stringify(sources));
-await fs.writeFile("README.md", readme);
-
-console.log("Wrote README.md");
+console.log("✅ Updated README.md");
