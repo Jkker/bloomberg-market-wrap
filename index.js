@@ -1,10 +1,26 @@
 import { config } from "dotenv";
 import { promises as fs } from "fs";
 import fetch from "node-fetch";
+import dayjs from "dayjs";
+import weekday from "dayjs/plugin/weekday.js";
 
 config();
+dayjs.extend(weekday);
+
+const isSunday = (date) => date.weekday() === 0;
+
+const addOneDay = (date) => date.add(1, "day").format("YYYY-MM-DD");
+
+const addOneToSunday = (date) => {
+  const d = dayjs(date);
+  if (isSunday(d)) {
+    return addOneDay(d);
+  }
+  return date;
+}
 
 const getStockData = async () => {
+  console.log("Fetching stock data...");
   const START_DATE = "2022-07-01";
   const FRED_KEY = "96dc2e6b866ebf08660f467211968758";
   const indices = ["DJIA", "SP500", "NASDAQCOM"];
@@ -42,6 +58,7 @@ const getStockData = async () => {
 };
 
 const getMarketWrapArticles = async () => {
+  console.log("Fetching Market Wrap articles...");
   const getToken = async () =>
     await fs.readFile(".env", "utf8").then((data) => data.trim());
 
@@ -72,9 +89,9 @@ const getMarketWrapArticles = async () => {
     fetch(`https://static.newsfilter.io/${id}.json`)
       .then((res) => res.json())
       .then((data) => data.url.replace("bloomberg.com//", "bloomberg.com/"))
-      .catch((e) => e + "");
+      .catch((e) => console.warn(e));
 
-  const getDateFromUrl = (url) => url.match(/(\d{4}-\d{2}-\d{2})/)[1];
+  const getDateFromUrl = (url) => url.match(/(\d{4}-\d{2}-\d{2})/)?.[1];
 
   const res = await fetchArticles();
 
@@ -86,7 +103,7 @@ const getMarketWrapArticles = async () => {
   );
   const articlesWithDates = articles.map((a) => ({
     ...a,
-    date: getDateFromUrl(a.source),
+    date: addOneToSunday(getDateFromUrl(a.source)),
   }));
 
   return articlesWithDates;

@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  dayjs: ^1.11.6
   dotenv: ^16.0.2
   node-fetch: ^3.2.10
   playwright: ^1.26.1
@@ -11,6 +12,7 @@ specifiers:
   yahoo-stock-prices: ^1.1.0
 
 dependencies:
+  dayjs: 1.11.6
   dotenv: 16.0.2
   node-fetch: 3.2.10
   playwright: 1.26.1
@@ -183,6 +185,10 @@ packages:
   /data-uri-to-buffer/4.0.0:
     resolution: {integrity: sha512-Vr3mLBA8qWmcuschSLAOogKgQ/Jwxulv3RNE4FXnYWRGujzrRWQI4m12fQqRkwX06C0KanhLr4hK+GydchZsaA==}
     engines: {node: '>= 12'}
+    dev: false
+
+  /dayjs/1.11.6:
+    resolution: {integrity: sha512-zZbY5giJAinCG+7AGaw0wIhNZ6J8AhWuSXKvuc1KAyMiRsvGQWqh4L+MomvhdAYjN+lqvVCMq1I41e3YHvXkyQ==}
     dev: false
 
   /debug/4.3.4:
