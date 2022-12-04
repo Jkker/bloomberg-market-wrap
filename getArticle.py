@@ -2,9 +2,26 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
+headers = {
+    "accept":
+    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
+    "cache-control": "max-age=0",
+    "if-none-match": 'W/"83186-pFaVzRgCWvzqqvFn+pHfs3ETZn0"',
+    "sec-ch-ua":
+    '"Microsoft Edge";v="107", "Chromium";v="107", "Not=A?Brand";v="24"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"Windows"',
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "same-origin",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1"
+}
+
 
 def fetchUrl(url):
-    r = requests.get(url, )
+    r = requests.get(url, headers=headers)
     r.encoding = r.apparent_encoding
     return r.text
 
