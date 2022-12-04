@@ -64,8 +64,8 @@ def getArticle(url):
 
 
 if __name__ == "__main__":
-    with open('data/2022-12-01.json') as f:
-        articles = json.load(f, encoding='utf-8')
+    with open('data/2022-12-01.json', encoding='utf-8') as f:
+        articles = json.load(f)
         success = 0
         fails = 0
         for article in articles:
