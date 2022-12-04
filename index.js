@@ -3,6 +3,8 @@ import { promises as fs } from "fs";
 import fetch from "node-fetch";
 import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday.js";
+import _ from "lodash";
+const START_DATE = "2022-07-01";
 
 config();
 dayjs.extend(weekday);
@@ -17,11 +19,10 @@ const addOneToSunday = (date) => {
     return addOneDay(d);
   }
   return date;
-}
+};
 
 const getStockData = async () => {
   console.log("Fetching stock data...");
-  const START_DATE = "2022-07-01";
   const FRED_KEY = "96dc2e6b866ebf08660f467211968758";
   const indices = ["DJIA", "SP500", "NASDAQCOM"];
 
@@ -36,7 +37,7 @@ const getStockData = async () => {
     (acc, { observations }, idx) => ({
       ...acc,
       [indices[idx]]: observations
-        .map(({ date, value }) => ({ date, value }))
+        .map(({ date, value }) => ({ date, value: parseFloat(value) }))
         .filter(({ date }) => date >= START_DATE),
     }),
     {}
@@ -48,23 +49,21 @@ const getStockData = async () => {
     stockDates.map((date) => [
       date,
       {
-        DJIA: obj.DJIA.find((d) => d.date === date).value,
-        SP500: obj.SP500.find((d) => d.date === date).value,
-        NASDAQCOM: obj.NASDAQCOM.find((d) => d.date === date).value,
+        DJIA: obj.DJIA.find((d) => d.date === date)?.value ?? "N/A",
+        SP500: obj.SP500.find((d) => d.date === date)?.value ?? "N/A",
+        NASDAQCOM: obj.NASDAQCOM.find((d) => d.date === date)?.value ?? "N/A",
       },
     ])
   );
   return stockData;
 };
 
-const getMarketWrapArticles = async () => {
+const getMarketWrapArticles = async (total = 100) => {
   console.log("Fetching Market Wrap articles...");
-  const getToken = async () =>
-    await fs.readFile(".env", "utf8").then((data) => data.trim());
 
-  const fetchArticles = async () => {
-    const token = await getToken();
+  const token = await fs.readFile(".env", "utf8").then((data) => data.trim());
 
+  const fetchArticlesPaginated = async (from = 0) => {
     const res = await fetch("https://api.newsfilter.io/actions", {
       headers: {
         authorization: token,
@@ -74,8 +73,8 @@ const getMarketWrapArticles = async () => {
       body: JSON.stringify({
         type: "filterArticles",
         queryString: 'title:"Markets Wrap" OR description:"Markets Wrap"',
-        from: 0,
-        size: 100,
+        from: from,
+        size: 50,
       }),
       method: "POST",
     });
@@ -85,26 +84,21 @@ const getMarketWrapArticles = async () => {
     return data;
   };
 
-  const getSrcUrl = (id = "a1ff13551dee02128ee0b9330e17f811") =>
-    fetch(`https://static.newsfilter.io/${id}.json`)
-      .then((res) => res.json())
-      .then((data) => data.url.replace("bloomberg.com//", "bloomberg.com/"))
-      .catch((e) => console.warn(e));
-
-  const getDateFromUrl = (url) => url.match(/(\d{4}-\d{2}-\d{2})/)?.[1];
-
-  const res = await fetchArticles();
-
-  const articles = await Promise.all(
-    res.articles.map(async (a) => ({
-      ...a,
-      source: await getSrcUrl(a.id),
-    }))
+  const res = await Promise.all(
+    _.range(0, total, 50).map(fetchArticlesPaginated)
   );
-  const articlesWithDates = articles.map((a) => ({
-    ...a,
-    date: addOneToSunday(getDateFromUrl(a.source)),
-  }));
+
+  const articlesWithDates = _.flatten(res.map((r) => r.articles))
+    .filter((a) => a.sourceUrl.includes("www.bloomberg.com"))
+    .map(({ title, publishedAt, url: newsFilterUrl, id, sourceUrl }) => ({
+      title,
+      id,
+      url: sourceUrl.replace("com//", "com/"),
+      publishedAt,
+      date: addOneToSunday(sourceUrl.match(/(\d{4}-\d{2}-\d{2})/)?.[1]),
+      newsFilterUrl,
+    }))
+    .filter(({ date }) => dayjs(date).isAfter(START_DATE));
 
   return articlesWithDates;
 };
@@ -114,9 +108,9 @@ const toMarkdownTableAll = (data) => {
   const separator = headers.map(() => "---");
 
   const rows = data.map(
-    ({ title, source, publishedAt, DJIA, SP500, NASDAQCOM }) => [
-      source.match(/(\d{4}-\d{2}-\d{2})/)[1],
-      `[${title}](${source})`,
+    ({ title, date, url, publishedAt, DJIA, SP500, NASDAQCOM }) => [
+      date,
+      `[${title}](${url})`,
       DJIA,
       SP500,
       NASDAQCOM,
@@ -158,10 +152,12 @@ ${table}
 console.log(`Found ${articles.length} articles`);
 console.log(`Latest Article (${latestArticle.date}): ${latestArticle.title} `);
 
-await fs.writeFile(
-  `data/${latestArticle.date}.json`,
-  JSON.stringify(articlesWithStocks)
-);
+const filePath = `data/${latestArticle.date}.json`;
+
+const latestJson = await fs.readFile(filePath, "utf8");
+const latestData = JSON.parse(latestJson);
+
+await fs.writeFile(filePath, JSON.stringify(articlesWithStocks));
 await fs.writeFile("README.md", readmeContent);
 
 console.log("✅ Updated README.md");
