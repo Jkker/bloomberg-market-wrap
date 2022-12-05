@@ -14,7 +14,10 @@
     "dayjs": "^1.11.6",
     "dotenv": "^16.0.2",
     "lodash": "^4.17.21",
-    "node-fetch": "^3.2.10"
+    "markdown-it": "^13.0.1",
+    "node-fetch": "^3.2.10",
+    "turndown": "^7.1.1",
+    "turndown-plugin-gfm": "^1.0.2"
   },
   "type": "module"
 }

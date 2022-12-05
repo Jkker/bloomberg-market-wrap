@@ -9,14 +9,10 @@ const START_DATE = "2022-07-01";
 config();
 dayjs.extend(weekday);
 
-const isSunday = (date) => date.weekday() === 0;
-
-const addOneDay = (date) => date.add(1, "day").format("YYYY-MM-DD");
-
-const addOneToSunday = (date) => {
+const offsetWeekendToFriday = (date) => {
   const d = dayjs(date);
-  if (isSunday(d)) {
-    return addOneDay(d);
+  if (d.weekday() === 0) {
+    return d.subtract(2, "day").format("YYYY-MM-DD");
   }
   return date;
 };
@@ -95,7 +91,7 @@ const getMarketWrapArticles = async (total = 100) => {
       id,
       url: sourceUrl.replace("com//", "com/"),
       publishedAt,
-      date: addOneToSunday(sourceUrl.match(/(\d{4}-\d{2}-\d{2})/)?.[1]),
+      date: offsetWeekendToFriday(sourceUrl.match(/(\d{4}-\d{2}-\d{2})/)?.[1]),
       newsFilterUrl,
     }))
     .filter(({ date }) => dayjs(date).isAfter(START_DATE));
@@ -104,12 +100,13 @@ const getMarketWrapArticles = async (total = 100) => {
 };
 
 const toMarkdownTableAll = (data) => {
-  const headers = ["Date", "Article", "Dow", "S&P500", "NASDAQ"];
+  const headers = ["Date", "Weekday", "Article", "Dow", "S&P500", "NASDAQ"];
   const separator = headers.map(() => "---");
 
   const rows = data.map(
     ({ title, date, url, publishedAt, DJIA, SP500, NASDAQCOM }) => [
       date,
+      dayjs(date).weekday(),
       `[${title}](${url})`,
       DJIA,
       SP500,
@@ -152,10 +149,8 @@ ${table}
 console.log(`Found ${articles.length} articles`);
 console.log(`Latest Article (${latestArticle.date}): ${latestArticle.title} `);
 
-const filePath = `data/${latestArticle.date}.json`;
+const filePath = `../data/${latestArticle.date}.json`;
 
-const latestJson = await fs.readFile(filePath, "utf8");
-const latestData = JSON.parse(latestJson);
 
 await fs.writeFile(filePath, JSON.stringify(articlesWithStocks));
 await fs.writeFile("README.md", readmeContent);

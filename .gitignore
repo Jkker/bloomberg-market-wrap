@@ -132,4 +132,4 @@ dist
 b.ipynb
 
 .venv
-tmp.*
+tmp*
